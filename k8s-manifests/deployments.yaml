@@ -1,0 +1,71 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer-deployment
+  namespace: app-ns
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: consumer
+  template:
+    metadata:
+      labels:
+        app: consumer
+    spec:
+      containers:
+        - name: consumer
+          image: 735901787806.dkr.ecr.us-east-1.amazonaws.com/ecabs_consumer
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: consumer-config
+          env:
+            - name: SPRING_RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-secret
+                  key: SPRING_RABBITMQ_USER
+            - name: SPRING_RABBITMQ_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-secret
+                  key: SPRING_RABBITMQ_PASS      
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer-deployment
+  namespace: app-ns
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: producer
+  template:
+    metadata:
+      labels:
+        app: producer
+    spec:
+      containers:
+        - name: producer
+          image: 735901787806.dkr.ecr.us-east-1.amazonaws.com/ecabs_producer
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: producer-config
+          env:
+            - name: SPRING_RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-secret
+                  key: SPRING_RABBITMQ_USER
+            - name: SPRING_RABBITMQ_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-secret
+                  key: SPRING_RABBITMQ_PASS      
